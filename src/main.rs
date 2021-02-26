@@ -1,4 +1,5 @@
 mod vec3;
+mod color;
 
 
 fn make_image() {
@@ -17,23 +18,13 @@ fn make_image() {
             let g = (j as f32) / (image_height - 1) as f32;
             let b = 0.25;
 
-            let ir = (255.999 * r) as i32;
-            let ig = (255.999 * g) as i32;
-            let ib = (255.999 * b) as i32;
-
-            println!("{} {} {}", ir, ig, ib);
+            let pixel_color = color::Color(r, g, b);
+            color::print_color(pixel_color);
         }
     }
     eprintln!("");
 }
 
 fn main() {
-
-    let v = vec3::Vec3(1.0, 2.0, 3.0);
-    let v2 = vec3::Vec3(1.0, 2.0, 3.0);
-
-    println!("{}", v);
-    println!("{:?}", v);
-
-    println!("{}", v + v2);
+    make_image();
 }

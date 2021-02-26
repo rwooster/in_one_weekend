@@ -84,8 +84,6 @@ impl fmt::Display for Vec3 {
 
 // Type aliases
 pub struct Point3(Vec3);
-pub struct Color(Vec3);
-
 
 #[cfg(test)]
 mod tests {
