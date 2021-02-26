@@ -83,7 +83,7 @@ impl fmt::Display for Vec3 {
 }
 
 // Type aliases
-pub struct Point3(Vec3);
+pub use Vec3 as Point3;
 
 #[cfg(test)]
 mod tests {

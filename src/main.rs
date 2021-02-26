@@ -1,5 +1,6 @@
 mod vec3;
 mod color;
+mod ray;
 
 
 fn make_image() {
