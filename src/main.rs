@@ -14,9 +14,22 @@ where
 }
 
 fn ray_color(r: &ray::Ray) -> color::Color {
+    if hit_sphere(vec3::Point3(0.0, 0.0, -1.0), 0.5, r) {
+        return color::RED;
+    }
+
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y() + 1.0);
     linear_blend(&color::WHITE, &color::BLUE, t)
+}
+
+fn hit_sphere(center: vec3::Point3, radius: f32, r: &ray::Ray) -> bool {
+    let oc = r.origin - center;
+    let a = r.direction.dot(r.direction);
+    let b = oc.dot(r.direction) * 2.0;
+    let c = oc.dot(oc) - radius*radius;
+    let discriminant = b*b - a*c*4.0;
+    discriminant > 0.0
 }
 
 fn main() {
