@@ -5,6 +5,20 @@ use std::ops;
 pub struct Vec3(pub f32, pub f32, pub f32);
 
 impl Vec3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
+        Vec3(x, y, z)
+    }
+
+    pub fn x(self) -> f32 {
+        self.0
+    }
+    pub fn y(self) -> f32 {
+        self.1
+    }
+    pub fn z(self) -> f32 {
+        self.2
+    }
+
     pub fn norm_squared(self) -> f32 {
         self.dot(self)
     }
@@ -18,9 +32,11 @@ impl Vec3 {
     }
 
     pub fn cross(self, rhs: Self) -> Self {
-        Self(self.1 * rhs.2 - self.2 * rhs.1,
-             self.2 * rhs.0 - self.0 * rhs.2,
-             self.0 * rhs.1 - self.1 * rhs.0)
+        Self(
+            self.1 * rhs.2 - self.2 * rhs.1,
+            self.2 * rhs.0 - self.0 * rhs.2,
+            self.0 * rhs.1 - self.1 * rhs.0,
+        )
     }
 
     pub fn unit_vector(self) -> Self {
@@ -60,11 +76,11 @@ impl ops::Mul<f32> for Vec3 {
     }
 }
 
-impl ops::Div<f32>for Vec3 {
+impl ops::Div<f32> for Vec3 {
     type Output = Self;
 
     fn div(self, rhs: f32) -> Self {
-        self * (1.0/rhs)
+        self * (1.0 / rhs)
     }
 }
 
@@ -88,7 +104,7 @@ pub use Vec3 as Point3;
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_operators() {
         let v1 = Vec3(1.0, 1.0, 1.0);
@@ -97,7 +113,7 @@ mod tests {
         assert!(v1 + v2 == Vec3(3.0, 3.0, 3.0));
         assert!(v2 - v1 == Vec3(1.0, 1.0, 1.0));
         assert!(v2 * v2 == Vec3(4.0, 4.0, 4.0));
-        assert!(v1 * 2.5 == Vec3(2.5, 2.5, 2.5)); 
+        assert!(v1 * 2.5 == Vec3(2.5, 2.5, 2.5));
         assert!(v2 / 2.0 == Vec3(1.0, 1.0, 1.0));
         assert!(-v1 == Vec3(-1.0, -1.0, -1.0));
     }
@@ -106,7 +122,7 @@ mod tests {
     fn test_functions() {
         let v1 = Vec3(1.0, 1.0, 1.0);
         let v2 = Vec3(2.0, 2.0, 2.0);
-        
+
         assert!(v1.dot(v2) == 6.0);
         assert!(v2.norm_squared() == 12.0);
         assert!(v2.norm() == (12.0 as f32).sqrt());
