@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 
 mod color;
+mod ppm;
 mod ray;
 mod vec3;
 
+use ppm::PpmWriter;
 use std::ops;
 
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
@@ -27,12 +29,12 @@ fn hit_sphere(center: vec3::Point3, radius: f32, r: &ray::Ray) -> bool {
     let oc = r.origin - center;
     let a = r.direction.dot(r.direction);
     let b = oc.dot(r.direction) * 2.0;
-    let c = oc.dot(oc) - radius*radius;
-    let discriminant = b*b - a*c*4.0;
+    let c = oc.dot(oc) - radius * radius;
+    let discriminant = b * b - a * c * 4.0;
     discriminant > 0.0
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
     // Image
     let aspect_ratio = 16.0 / 9.0;
     let image_width: i32 = 400;
@@ -50,9 +52,10 @@ fn main() {
         origin - (horizontal / 2.0) - (vertical / 2.0) - vec3::Vec3(0.0, 0.0, focal_length);
 
     // Render
-    println!("P3");
-    println!("{} {}", image_width, image_height);
-    println!("255");
+    let mut ppm_writer = match PpmWriter::new(&image_width, &image_height) {
+        Err(why) => panic!("couldn't create writer {}", why),
+        Ok(ppm_writer) => ppm_writer,
+    };
 
     for j in (0..image_height).rev() {
         eprint!("\rScanlines remaining: {}", j);
@@ -64,8 +67,10 @@ fn main() {
                 lower_left_corner + horizontal * u + vertical * v - origin,
             );
             let pixel_color = ray_color(&r);
-            color::print_color(pixel_color);
+            ppm_writer.write_color(pixel_color)?;
         }
     }
     eprintln!("");
+
+    Ok(())
 }
