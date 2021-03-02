@@ -39,17 +39,18 @@ fn ray_color(r: &ray::Ray) -> color::Color {
 // If so, returns the value t along the ray which touches the sphere.
 fn hit_sphere(center: vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
     let oc = r.origin - center;
-    let a = r.direction.dot(r.direction);
-    let b = oc.dot(r.direction) * 2.0;
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - a * c * 4.0;
+
+    let a = r.direction.norm_squared();
+    let half_b = oc.dot(r.direction);
+    let c = oc.norm_squared() - radius * radius;
+    let discriminant = half_b * half_b - a * c;
 
     // Check if there is a solution to the quadratic - if so, calculate t and return it.
     // We only look at the closest hit point if there are multiple.
     if discriminant < 0.0 {
         -1.0
     } else {
-        (-b - discriminant.sqrt()) / (a * 2.0)
+        (-half_b - discriminant.sqrt()) / a
     }
 }
 
