@@ -1,5 +1,9 @@
 use super::vec3;
 
+// A ray is represnted by P(t) = A + tB
+// P is a position along a 3D line
+// A is the origin of the ray
+// B is the direction of the ray
 pub struct Ray {
     pub origin: vec3::Point3,
     pub direction: vec3::Vec3,
