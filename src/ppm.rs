@@ -8,7 +8,7 @@ pub struct PpmWriter {
 }
 
 impl PpmWriter {
-    pub fn new(image_width: &i32, image_height: &i32) -> std::io::Result<PpmWriter> {
+    pub fn new(image_width: &usize, image_height: &usize) -> std::io::Result<PpmWriter> {
         let path = Path::new("image.ppm");
 
         let mut file = match File::create(&path) {

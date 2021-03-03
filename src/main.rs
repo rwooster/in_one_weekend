@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unused_variables)]
 
 mod color;
 mod ppm;
@@ -7,8 +8,8 @@ mod vec3;
 
 use ppm::PpmWriter;
 use std::ops;
+use pixel_canvas::{Canvas, Color, RC};
 
-// Scale values from start -> end for 0 <= t <= 1.
 // t == 0, returns start, t == 1 returns end.
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
 where
@@ -54,11 +55,20 @@ fn hit_sphere(center: vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
     }
 }
 
+// TODO: Argument parsing
+static WRITE_PPM: bool = false;
+
 fn main() -> std::io::Result<()> {
-    // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width: i32 = 400;
-    let image_height: i32 = (image_width as f32 / aspect_ratio) as i32;
+    let image_width: usize = 400;
+    let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
+
+    let canvas = Canvas::new(image_width, image_height).title("Tile").render_on_change(true);
+    let mut ppm_writer = match PpmWriter::new(&image_width, &image_height) {
+        Err(why) => panic!("couldn't create writer {}", why),
+        Ok(ppm_writer) => ppm_writer,
+    };
+
 
     // Camera (source of the rays into the scene).
     let viewport_height = 2.0; // arbitrarity chosen height
@@ -73,28 +83,32 @@ fn main() -> std::io::Result<()> {
     let lower_left_corner =
         origin - (horizontal / 2.0) - (vertical / 2.0) - vec3::Vec3(0.0, 0.0, focal_length);
 
-    // Render
-    let mut ppm_writer = match PpmWriter::new(&image_width, &image_height) {
-        Err(why) => panic!("couldn't create writer {}", why),
-        Ok(ppm_writer) => ppm_writer,
-    };
+    canvas.render(move |_state, image| {
+        for j in (0..image_height).rev() {
+            eprint!("\rScanlines remaining: {}", j);
+            for i in 0..image_width {
+                let u = (i as f32) / ((image_width - 1) as f32);
+                let v = (j as f32) / ((image_height - 1) as f32);
 
-    for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {}", j);
-        for i in 0..image_width {
-            let u = (i as f32) / ((image_width - 1) as f32);
-            let v = (j as f32) / ((image_height - 1) as f32);
+                // Generate ray going from camera origin to the current pixel.
+                let r = ray::Ray::new(
+                    origin,
+                    lower_left_corner + horizontal * u + vertical * v - origin,
+                );
+                let pixel_color = ray_color(&r);
+                let pixel: &mut Color = &mut image[RC(j, i)];
+                *pixel = Color {
+                    r: (pixel_color.0 * 255.999) as u8,
+                    g: (pixel_color.1 * 255.999) as u8,
+                    b: (pixel_color.2 * 255.999) as u8,
+                };
+                if (WRITE_PPM) {
+                    ppm_writer.write_color(pixel_color).expect("writing color failed");
+                }
 
-            // Generate ray going from camera origin to the current pixel.
-            let r = ray::Ray::new(
-                origin,
-                lower_left_corner + horizontal * u + vertical * v - origin,
-            );
-            let pixel_color = ray_color(&r);
-            ppm_writer.write_color(pixel_color)?;
+            }
         }
-    }
-    eprintln!("");
-
+        eprintln!("");
+    });
     Ok(())
 }
