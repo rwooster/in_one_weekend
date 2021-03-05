@@ -6,9 +6,9 @@ mod ppm;
 mod ray;
 mod vec3;
 
+use pixel_canvas::{Canvas, Color, RC};
 use ppm::PpmWriter;
 use std::ops;
-use pixel_canvas::{Canvas, Color, RC};
 
 // t == 0, returns start, t == 1 returns end.
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
@@ -24,10 +24,10 @@ fn ray_color(r: &ray::Ray) -> color::Color {
     let t = hit_sphere(vec3::Point3(0.0, 0.0, -1.0), 0.5, r);
     if t > 0.0 {
         // Get a surface normal - a vector perpendicular to the surface at the intersection point.
-        let N = (r.at(t) - vec3::Vec3(0.0, 0.0, -1.0)).unit_vector();
+        let n = (r.at(t) - vec3::Vec3(0.0, 0.0, -1.0)).unit_vector();
 
         // We map x/y/z of N to r/g/b for easy visualization.
-        return color::Color(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0) * 0.5;
+        return color::Color(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0) * 0.5;
     }
 
     // Gradient white -> vlue background.
@@ -63,12 +63,13 @@ fn main() -> std::io::Result<()> {
     let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
 
-    let canvas = Canvas::new(image_width, image_height).title("Tile").render_on_change(true);
+    let canvas = Canvas::new(image_width, image_height)
+        .title("Tile")
+        .render_on_change(true);
     let mut ppm_writer = match PpmWriter::new(&image_width, &image_height) {
         Err(why) => panic!("couldn't create writer {}", why),
         Ok(ppm_writer) => ppm_writer,
     };
-
 
     // Camera (source of the rays into the scene).
     let viewport_height = 2.0; // arbitrarity chosen height
@@ -102,10 +103,11 @@ fn main() -> std::io::Result<()> {
                     g: (pixel_color.1 * 255.999) as u8,
                     b: (pixel_color.2 * 255.999) as u8,
                 };
-                if (WRITE_PPM) {
-                    ppm_writer.write_color(pixel_color).expect("writing color failed");
+                if WRITE_PPM {
+                    ppm_writer
+                        .write_color(pixel_color)
+                        .expect("writing color failed");
                 }
-
             }
         }
         eprintln!("");
