@@ -1,12 +1,17 @@
 use super::ray;
 use super::vec3;
+use std::option::Option;
 
-struct HitRecord {
-    p: vec3::Point3,
-    normal: vec3::Vec3,
-    t: f32,
+// A record indicating where a Hittable is intersected.
+// t: t along the ray where the intersection occurs.
+// p: The point of intersection.
+// normal: The surface normal from the intersection point.
+pub struct HitRecord {
+    pub t: f32,
+    pub p: vec3::Point3,
+    pub normal: vec3::Vec3,
 }
 
-trait hittable {
-    fn hit(&self, r: &ray::Ray, t_min: f32, t_max: f32, record: &HitRecord) -> bool;
+pub trait Hittable {
+    fn hit(&self, r: &ray::Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }

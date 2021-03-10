@@ -5,10 +5,13 @@ mod color;
 mod ppm;
 mod ray;
 mod vec3;
+mod sphere;
+mod hittable;
 
 use pixel_canvas::{Canvas, Color, RC};
 use ppm::PpmWriter;
 use std::ops;
+use hittable::Hittable;
 
 // t == 0, returns start, t == 1 returns end.
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
@@ -21,39 +24,22 @@ where
 // Given a ray from camera -> pixel in the image, determine the color of that pixel.
 fn ray_color(r: &ray::Ray) -> color::Color {
     // Make a sphere at (0, 0, -1) with a radius of 0.5.
-    let t = hit_sphere(vec3::Point3(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        // Get a surface normal - a vector perpendicular to the surface at the intersection point.
-        let n = (r.at(t) - vec3::Vec3(0.0, 0.0, -1.0)).unit_vector();
+    let sphere = sphere::Sphere::new(vec3::Point3(0.0, 0.0, -1.0), 0.5);
 
-        // We map x/y/z of N to r/g/b for easy visualization.
-        return color::Color(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0) * 0.5;
-    }
-
-    // Gradient white -> vlue background.
-    let unit_direction = r.direction.unit_vector();
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    linear_blend(&color::WHITE, &color::BLUE, t)
-}
-
-// Check if the given sphere is hit by the ray.
-// If so, returns the value t along the ray which touches the sphere.
-fn hit_sphere(center: vec3::Point3, radius: f32, r: &ray::Ray) -> f32 {
-    let oc = r.origin - center;
-
-    let a = r.direction.norm_squared();
-    let half_b = oc.dot(r.direction);
-    let c = oc.norm_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-
-    // Check if there is a solution to the quadratic - if so, calculate t and return it.
-    // We only look at the closest hit point if there are multiple.
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discriminant.sqrt()) / a
+    match sphere.hit(r, 0.0, 99999.0) {
+        Some(hit_record) => {
+            // We map x/y/z of N to r/g/b for easy visualization.
+            return color::Color(hit_record.normal.x() + 1.0, hit_record.normal.y() + 1.0, hit_record.normal.z() + 1.0) * 0.5;
+        },
+        None => {
+            // Gradient white -> vlue background.
+            let unit_direction = r.direction.unit_vector();
+            let t = 0.5 * (unit_direction.y() + 1.0);
+            return linear_blend(&color::WHITE, &color::BLUE, t);
+        },
     }
 }
+
 
 // TODO: Argument parsing
 static WRITE_PPM: bool = false;
