@@ -24,9 +24,9 @@ where
 // Given a ray from camera -> pixel in the image, determine the color of that pixel.
 fn ray_color(r: &ray::Ray) -> color::Color {
     // Make a sphere at (0, 0, -1) with a radius of 0.5.
-    let sphere = sphere::Sphere::new(vec3::Point3(0.0, 0.0, -1.0), 0.5);
+    let sphere = sphere::Sphere::new(vec3::Point3(0.0, 0.0, -1.0), 0.25);
 
-    match sphere.hit(r, 0.0, 99999.0) {
+    match sphere.hit(r, 0.0, 1.0) {
         Some(hit_record) => {
             // We map x/y/z of N to r/g/b for easy visualization.
             return color::Color(hit_record.normal.x() + 1.0, hit_record.normal.y() + 1.0, hit_record.normal.z() + 1.0) * 0.5;

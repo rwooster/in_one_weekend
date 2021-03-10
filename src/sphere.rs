@@ -43,6 +43,8 @@ impl hittable::Hittable for Sphere {
         }
 
         let hit_point = r.at(root);
-        Some(hittable::HitRecord{t: root, p: hit_point, normal: (hit_point - self.center) / self.radius})
+        let outward_normal = (hit_point - self.center) / self.radius;
+
+        Some(hittable::HitRecord::new(root, hit_point, r, outward_normal))
     }
 }
