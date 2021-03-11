@@ -10,6 +10,7 @@ mod sphere;
 mod vec3;
 
 use hittable::Hittable;
+use hittable_list::HittableList;
 use pixel_canvas::{Canvas, Color, RC};
 use ppm::PpmWriter;
 use std::ops;
@@ -23,18 +24,12 @@ where
 }
 
 // Given a ray from camera -> pixel in the image, determine the color of that pixel.
-fn ray_color(r: &ray::Ray) -> color::Color {
-    // Make a sphere at (0, 0, -1) with a radius of 0.5.
-    let sphere = sphere::Sphere::new(vec3::Point3(0.0, 0.0, -1.0), 0.25);
-
-    match sphere.hit(r, 0.0, 1.0) {
+fn ray_color(r: &ray::Ray, world: &HittableList) -> color::Color {
+    // TODO: infinity
+    match world.hit(r, 0.0, 999999.0) {
         Some(hit_record) => {
             // We map x/y/z of N to r/g/b for easy visualization.
-            return color::Color(
-                hit_record.normal.x() + 1.0,
-                hit_record.normal.y() + 1.0,
-                hit_record.normal.z() + 1.0,
-            ) * 0.5;
+            return (hit_record.normal + color::Color(1.0, 1.0, 1.0)) * 0.5;
         }
         None => {
             // Gradient white -> vlue background.
@@ -61,6 +56,16 @@ fn main() -> std::io::Result<()> {
         Ok(ppm_writer) => ppm_writer,
     };
 
+    // World
+    let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
+        vec3::Point3(0.0, 0.0, -1.0),
+        0.5,
+    )));
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3(0.0, -100.5, -1.0),
+        100.0,
+    )));
+
     // Camera (source of the rays into the scene).
     let viewport_height = 2.0; // arbitrarity chosen height
     let viewport_width = aspect_ratio * viewport_height;
@@ -86,7 +91,7 @@ fn main() -> std::io::Result<()> {
                     origin,
                     lower_left_corner + horizontal * u + vertical * v - origin,
                 );
-                let pixel_color = ray_color(&r);
+                let pixel_color = ray_color(&r, &world);
                 let pixel: &mut Color = &mut image[RC(j, i)];
                 *pixel = Color {
                     r: (pixel_color.0 * 255.999) as u8,
