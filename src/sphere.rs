@@ -1,22 +1,20 @@
 use super::hittable;
-use super::vec3;
 use super::ray;
+use super::vec3;
 use std::option::Option;
 
 pub struct Sphere {
     pub center: vec3::Point3,
-    pub radius: f32
+    pub radius: f32,
 }
 
 impl Sphere {
     pub fn new(center: vec3::Point3, radius: f32) -> Self {
-        Sphere{center, radius}
+        Sphere { center, radius }
     }
 }
 
-
 impl hittable::Hittable for Sphere {
-
     // Check if the given sphere is hit by the ray.
     // If so, returns the hit record for the intersection.
     fn hit(&self, r: &ray::Ray, t_min: f32, t_max: f32) -> Option<hittable::HitRecord> {

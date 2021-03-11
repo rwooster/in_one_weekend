@@ -2,16 +2,17 @@
 #![allow(unused_variables)]
 
 mod color;
+mod hittable;
+mod hittable_list;
 mod ppm;
 mod ray;
-mod vec3;
 mod sphere;
-mod hittable;
+mod vec3;
 
+use hittable::Hittable;
 use pixel_canvas::{Canvas, Color, RC};
 use ppm::PpmWriter;
 use std::ops;
-use hittable::Hittable;
 
 // t == 0, returns start, t == 1 returns end.
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
@@ -29,17 +30,20 @@ fn ray_color(r: &ray::Ray) -> color::Color {
     match sphere.hit(r, 0.0, 1.0) {
         Some(hit_record) => {
             // We map x/y/z of N to r/g/b for easy visualization.
-            return color::Color(hit_record.normal.x() + 1.0, hit_record.normal.y() + 1.0, hit_record.normal.z() + 1.0) * 0.5;
-        },
+            return color::Color(
+                hit_record.normal.x() + 1.0,
+                hit_record.normal.y() + 1.0,
+                hit_record.normal.z() + 1.0,
+            ) * 0.5;
+        }
         None => {
             // Gradient white -> vlue background.
             let unit_direction = r.direction.unit_vector();
             let t = 0.5 * (unit_direction.y() + 1.0);
             return linear_blend(&color::WHITE, &color::BLUE, t);
-        },
+        }
     }
 }
-
 
 // TODO: Argument parsing
 static WRITE_PPM: bool = false;

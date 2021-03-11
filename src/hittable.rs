@@ -16,9 +16,18 @@ pub struct HitRecord {
 impl HitRecord {
     pub fn new(t: f32, p: vec3::Point3, r: &ray::Ray, outward_normal: vec3::Vec3) -> Self {
         let front_face: bool = r.direction.dot(outward_normal) < 0.0;
-        let normal = if front_face { outward_normal } else { -outward_normal };
+        let normal = if front_face {
+            outward_normal
+        } else {
+            -outward_normal
+        };
 
-        HitRecord{t, p, normal, front_face}
+        HitRecord {
+            t,
+            p,
+            normal,
+            front_face,
+        }
     }
 }
 
