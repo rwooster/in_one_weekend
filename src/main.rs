@@ -25,8 +25,7 @@ where
 
 // Given a ray from camera -> pixel in the image, determine the color of that pixel.
 fn ray_color(r: &ray::Ray, world: &HittableList) -> color::Color {
-    // TODO: infinity
-    match world.hit(r, 0.0, 999999.0) {
+    match world.hit(r, 0.0, f32::INFINITY) {
         Some(hit_record) => {
             // We map x/y/z of N to r/g/b for easy visualization.
             return (hit_record.normal + color::Color(1.0, 1.0, 1.0)) * 0.5;
