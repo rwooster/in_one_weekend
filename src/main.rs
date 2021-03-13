@@ -42,21 +42,36 @@ fn ray_color(r: &ray::Ray, world: &HittableList) -> color::Color {
 }
 
 // TODO: Argument parsing
-static WRITE_PPM: bool = false;
+static WRITE_PPM: bool = true;
 
 fn write_pixel(
     pixel_color: &color::Color,
+    samples_per_pixel: i32,
     pixel: &mut pixel_canvas::Color,
     ppm_writer: &mut PpmWriter,
 ) {
+    let mut r = pixel_color.0;
+    let mut g = pixel_color.1;
+    let mut b = pixel_color.2;
+
+    let scale = 1.0 / samples_per_pixel as f32;
+    r *= scale;
+    g *= scale;
+    b *= scale;
+
+    r = 256.0 * r.clamp(0.0, 0.999);
+    g = 256.0 * g.clamp(0.0, 0.999);
+    b = 256.0 * b.clamp(0.0, 0.999);
+
     *pixel = Color {
-        r: (pixel_color.0 * 255.999) as u8,
-        g: (pixel_color.1 * 255.999) as u8,
-        b: (pixel_color.2 * 255.999) as u8,
+        r: r as u8,
+        g: g as u8,
+        b: b as u8,
     };
+
     if WRITE_PPM {
         ppm_writer
-            .write_color(*pixel_color)
+            .write_color(color::Color(r, g, b))
             .expect("writing color failed");
     }
 }
@@ -65,6 +80,7 @@ fn main() -> std::io::Result<()> {
     let aspect_ratio = 16.0 / 9.0;
     let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
+    let samples_per_pixel = 100;
 
     let canvas = Canvas::new(image_width, image_height)
         .title("Tile")
@@ -90,15 +106,17 @@ fn main() -> std::io::Result<()> {
         for j in (0..image_height).rev() {
             eprint!("\rScanlines remaining: {}", j);
             for i in 0..image_width {
-                let u = (i as f32) / ((image_width - 1) as f32);
-                let v = (j as f32) / ((image_height - 1) as f32);
+                let mut pixel_color = color::Color(0.0, 0.0, 0.0);
+                for i in 0..samples_per_pixel {
+                    let u = ((i as f32) + util::random_float()) / ((image_width - 1) as f32);
+                    let v = ((j as f32) + util::random_float()) / ((image_height - 1) as f32);
 
-                // Generate ray going from camera origin to the current pixel.
-                let r = camera.generate_ray(u, v);
-
-                let pixel_color = ray_color(&r, &world);
+                    // Generate ray going from camera origin to the current pixel.
+                    let r = camera.generate_ray(u, v);
+                    pixel_color = pixel_color + ray_color(&r, &world);
+                }
                 let pixel: &mut Color = &mut image[RC(j, i)];
-                write_pixel(&pixel_color, pixel, &mut ppm_writer);
+                write_pixel(&pixel_color, samples_per_pixel, pixel, &mut ppm_writer);
             }
         }
         eprintln!("");

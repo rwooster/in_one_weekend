@@ -24,12 +24,10 @@ impl PpmWriter {
     }
 
     pub fn write_color(&mut self, pixel_color: color::Color) -> std::io::Result<()> {
-        let translated = pixel_color * 255.999;
-
         writeln!(
             self.file,
             "{} {} {}",
-            translated.0 as i32, translated.1 as i32, translated.2 as i32
+            pixel_color.0 as i32, pixel_color.1 as i32, pixel_color.2 as i32
         )?;
         Ok(())
     }
