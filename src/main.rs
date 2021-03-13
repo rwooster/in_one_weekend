@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
@@ -65,18 +66,7 @@ fn main() -> std::io::Result<()> {
         100.0,
     )));
 
-    // Camera (source of the rays into the scene).
-    let viewport_height = 2.0; // arbitrarity chosen height
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0; // distance from projection plane to projection point.
-
-    // Camera is at (0, 0, 0)
-    // Y axis is up, X axis is right, into screen is negative Z.
-    let origin = vec3::Point3::new(0.0, 0.0, 0.0);
-    let horizontal = vec3::Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = vec3::Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - (horizontal / 2.0) - (vertical / 2.0) - vec3::Vec3(0.0, 0.0, focal_length);
+    let camera = camera::Camera::new();
 
     canvas.render(move |_state, image| {
         for j in (0..image_height).rev() {
@@ -86,10 +76,8 @@ fn main() -> std::io::Result<()> {
                 let v = (j as f32) / ((image_height - 1) as f32);
 
                 // Generate ray going from camera origin to the current pixel.
-                let r = ray::Ray::new(
-                    origin,
-                    lower_left_corner + horizontal * u + vertical * v - origin,
-                );
+                let r = camera.generate_ray(u, v);
+
                 let pixel_color = ray_color(&r, &world);
                 let pixel: &mut Color = &mut image[RC(j, i)];
                 *pixel = Color {
