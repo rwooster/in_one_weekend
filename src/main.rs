@@ -43,6 +43,23 @@ fn ray_color(r: &ray::Ray, world: &HittableList) -> color::Color {
 // TODO: Argument parsing
 static WRITE_PPM: bool = false;
 
+fn write_pixel(
+    pixel_color: &color::Color,
+    pixel: &mut pixel_canvas::Color,
+    ppm_writer: &mut PpmWriter,
+) {
+    *pixel = Color {
+        r: (pixel_color.0 * 255.999) as u8,
+        g: (pixel_color.1 * 255.999) as u8,
+        b: (pixel_color.2 * 255.999) as u8,
+    };
+    if WRITE_PPM {
+        ppm_writer
+            .write_color(*pixel_color)
+            .expect("writing color failed");
+    }
+}
+
 fn main() -> std::io::Result<()> {
     let aspect_ratio = 16.0 / 9.0;
     let image_width: usize = 400;
@@ -80,16 +97,7 @@ fn main() -> std::io::Result<()> {
 
                 let pixel_color = ray_color(&r, &world);
                 let pixel: &mut Color = &mut image[RC(j, i)];
-                *pixel = Color {
-                    r: (pixel_color.0 * 255.999) as u8,
-                    g: (pixel_color.1 * 255.999) as u8,
-                    b: (pixel_color.2 * 255.999) as u8,
-                };
-                if WRITE_PPM {
-                    ppm_writer
-                        .write_color(pixel_color)
-                        .expect("writing color failed");
-                }
+                write_pixel(&pixel_color, pixel, &mut ppm_writer);
             }
         }
         eprintln!("");
