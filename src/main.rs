@@ -8,6 +8,7 @@ mod hittable_list;
 mod ppm;
 mod ray;
 mod sphere;
+mod util;
 mod vec3;
 
 use hittable::Hittable;
