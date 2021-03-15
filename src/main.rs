@@ -107,7 +107,7 @@ fn main() -> std::io::Result<()> {
             eprint!("\rScanlines remaining: {}", j);
             for i in 0..image_width {
                 let mut pixel_color = color::Color(0.0, 0.0, 0.0);
-                for i in 0..samples_per_pixel {
+                for _ in 0..samples_per_pixel {
                     let u = ((i as f32) + util::random_float()) / ((image_width - 1) as f32);
                     let v = ((j as f32) + util::random_float()) / ((image_height - 1) as f32);
 
