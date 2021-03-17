@@ -1,3 +1,4 @@
+use super::util;
 use std::fmt;
 use std::ops;
 
@@ -41,6 +42,32 @@ impl Vec3 {
 
     pub fn unit_vector(self) -> Self {
         self / self.norm()
+    }
+
+    pub fn random() -> Self {
+        Self::new(
+            util::random_float(),
+            util::random_float(),
+            util::random_float(),
+        )
+    }
+
+    pub fn random_range(min: f32, max: f32) -> Self {
+        Self::new(
+            util::random_float_bounds(min, max),
+            util::random_float_bounds(min, max),
+            util::random_float_bounds(min, max),
+        )
+    }
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_range(-1.0, 1.0);
+        if p.norm_squared() >= 1.0 {
+            continue;
+        }
+        return p;
     }
 }
 

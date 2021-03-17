@@ -26,11 +26,19 @@ where
 }
 
 // Given a ray from camera -> pixel in the image, determine the color of that pixel.
-fn ray_color(r: &ray::Ray, world: &HittableList) -> color::Color {
+fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
+    if depth <= 0 {
+        return color::Color(0.0, 0.0, 0.0);
+    }
+
     match world.hit(r, 0.0, f32::INFINITY) {
         Some(hit_record) => {
-            // We map x/y/z of N to r/g/b for easy visualization.
-            return (hit_record.normal + color::Color(1.0, 1.0, 1.0)) * 0.5;
+            let target = hit_record.p + hit_record.normal + vec3::random_in_unit_sphere();
+            return ray_color(
+                &ray::Ray::new(hit_record.p, target - hit_record.p),
+                world,
+                depth - 1,
+            );
         }
         None => {
             // Gradient white -> vlue background.
@@ -81,6 +89,7 @@ fn main() -> std::io::Result<()> {
     let image_width: usize = 400;
     let image_height: usize = (image_width as f32 / aspect_ratio) as usize;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     let canvas = Canvas::new(image_width, image_height)
         .title("Tile")
@@ -104,7 +113,7 @@ fn main() -> std::io::Result<()> {
 
     canvas.render(move |_state, image| {
         for j in (0..image_height).rev() {
-            eprint!("\rScanlines remaining: {}", j);
+            eprint!("\rScanlines remaining: {}    ", j);
             for i in 0..image_width {
                 let mut pixel_color = color::Color(0.0, 0.0, 0.0);
                 for _ in 0..samples_per_pixel {
@@ -113,7 +122,7 @@ fn main() -> std::io::Result<()> {
 
                     // Generate ray going from camera origin to the current pixel.
                     let r = camera.generate_ray(u, v);
-                    pixel_color = pixel_color + ray_color(&r, &world);
+                    pixel_color = pixel_color + ray_color(&r, &world, max_depth);
                 }
                 let pixel: &mut Color = &mut image[RC(j, i)];
                 write_pixel(&pixel_color, samples_per_pixel, pixel, &mut ppm_writer);
