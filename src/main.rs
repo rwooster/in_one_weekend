@@ -31,10 +31,11 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
         return color::Color(0.0, 0.0, 0.0);
     }
 
-    match world.hit(r, 0.001, f32::INFINITY) {
+    match world.hit(r, 0.01, f32::INFINITY) {
         Some(hit_record) => {
+            let target = hit_record.p + hit_record.normal + vec3::random_in_unit_sphere();
             //let target = hit_record.p + hit_record.normal + vec3::random_unit_vector();
-            let target = hit_record.p + vec3::random_in_hemisphere(&hit_record.normal);
+            //let target = hit_record.p + vec3::random_in_hemisphere(&hit_record.normal);
             return ray_color(
                 &ray::Ray::new(hit_record.p, target - hit_record.p),
                 world,
