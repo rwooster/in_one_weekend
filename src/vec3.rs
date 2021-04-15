@@ -64,6 +64,7 @@ impl Vec3 {
         let s = 1e-8;
         self.0.abs() < s && self.0.abs() < s && self.2.abs() < s
     }
+
 }
 
 pub fn random_in_unit_sphere() -> Vec3 {
@@ -87,6 +88,10 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     } else {
         -in_unit_sphere
     }
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    *v - (*n * v.dot(*n) * 2.0)
 }
 
 impl ops::Add for Vec3 {

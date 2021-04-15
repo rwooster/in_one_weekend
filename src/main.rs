@@ -106,18 +106,32 @@ fn main() -> std::io::Result<()> {
     };
 
     // Materials
-    let material = Rc::new(material::Lambertian::new(color::Color::new(0.7, 0.3, 0.3)));
+    let material_ground = Rc::new(material::Lambertian::new(color::Color::new(0.8, 0.8, 0.0)));
+    let material_center = Rc::new(material::Lambertian::new(color::Color::new(0.7, 0.3, 0.3)));
+
+    let material_left = Rc::new(material::Metal::new(color::Color::new(0.8, 0.8, 0.8)));
+    let material_right = Rc::new(material::Metal::new(color::Color::new(0.8, 0.6, 0.2)));
 
     // World
     let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
-        vec3::Point3(0.0, 0.0, -1.0),
-        0.5,
-        material.clone()
-    )));
-    world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, -100.5, -1.0),
         100.0,
-        material.clone()
+        material_ground.clone()
+    )));
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3(0.0, 0.0, -1.0),
+        0.5,
+        material_center.clone()
+    )));
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3(-1.0, 0.0, -1.0),
+        0.5,
+        material_left.clone()
+    )));
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3(1.0, -0.0, -1.0),
+        0.5,
+        material_right.clone()
     )));
 
     let camera = camera::Camera::new();
