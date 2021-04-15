@@ -4,6 +4,7 @@ use super::vec3;
 // P is a position along a 3D line
 // A is the origin of the ray
 // B is the direction of the ray
+#[derive(Debug, Copy, Clone)]
 pub struct Ray {
     pub origin: vec3::Point3,
     pub direction: vec3::Vec3,

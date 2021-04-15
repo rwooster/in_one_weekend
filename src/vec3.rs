@@ -10,13 +10,13 @@ impl Vec3 {
         Vec3(x, y, z)
     }
 
-    pub fn x(self) -> f32 {
+    pub fn x(&self) -> f32 {
         self.0
     }
-    pub fn y(self) -> f32 {
+    pub fn y(&self) -> f32 {
         self.1
     }
-    pub fn z(self) -> f32 {
+    pub fn z(&self) -> f32 {
         self.2
     }
 
@@ -58,6 +58,11 @@ impl Vec3 {
             util::random_float_bounds(min, max),
             util::random_float_bounds(min, max),
         )
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.0.abs() < s && self.0.abs() < s && self.2.abs() < s
     }
 }
 
@@ -168,5 +173,14 @@ mod tests {
         assert!(v2.norm() == (12.0 as f32).sqrt());
         assert!(v1.cross(v2) == Vec3(0.0, 0.0, 0.0));
         assert!(Vec3(1.0, 0.0, 0.0).unit_vector() == Vec3(1.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn test_near_zero() {
+        let v1 = Vec3(1.0, 1.0, 1.0);
+        let v2 = Vec3(0.0000000001, 0.0, 0.0);
+
+        assert!(!v1.near_zero());
+        assert!(v2.near_zero());
     }
 }

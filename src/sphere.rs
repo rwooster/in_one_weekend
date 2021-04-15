@@ -1,16 +1,19 @@
 use super::hittable;
+use super::material;
 use super::ray;
 use super::vec3;
 use std::option::Option;
+use std::rc::Rc;
 
 pub struct Sphere {
     pub center: vec3::Point3,
     pub radius: f32,
+    material: Rc<dyn material::Material>,
 }
 
 impl Sphere {
-    pub fn new(center: vec3::Point3, radius: f32) -> Self {
-        Sphere { center, radius }
+    pub fn new(center: vec3::Point3, radius: f32, material: Rc<dyn material::Material>) -> Self {
+        Sphere { center, radius, material }
     }
 }
 
@@ -43,6 +46,6 @@ impl hittable::Hittable for Sphere {
         let hit_point = r.at(root);
         let outward_normal = (hit_point - self.center) / self.radius;
 
-        Some(hittable::HitRecord::new(root, hit_point, r, outward_normal))
+        Some(hittable::HitRecord::new(root, hit_point, r, outward_normal, self.material.clone()))
     }
 }

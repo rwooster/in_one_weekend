@@ -7,6 +7,7 @@ mod hittable;
 mod hittable_list;
 mod ppm;
 mod ray;
+mod material;
 mod sphere;
 mod util;
 mod vec3;
@@ -16,6 +17,7 @@ use hittable_list::HittableList;
 use pixel_canvas::{Canvas, Color, RC};
 use ppm::PpmWriter;
 use std::ops;
+use std::rc::Rc;
 
 // t == 0, returns start, t == 1 returns end.
 fn linear_blend<T>(start: &T, end: &T, t: f32) -> T
@@ -33,14 +35,15 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
 
     match world.hit(r, 0.0001, f32::INFINITY) {
         Some(hit_record) => {
-            let target = hit_record.p + hit_record.normal + vec3::random_in_unit_sphere();
-            //let target = hit_record.p + hit_record.normal + vec3::random_unit_vector();
-            //let target = hit_record.p + vec3::random_in_hemisphere(&hit_record.normal);
-            return ray_color(
-                &ray::Ray::new(hit_record.p, target - hit_record.p),
-                world,
-                depth - 1,
-            ) * 0.5;
+
+            match hit_record.material.scatter(r, &hit_record) {
+                Some(scattering) => {
+                    return ray_color(&scattering.scattered, world, depth - 1) * scattering.attenuation;
+                }
+                None => {
+                    return color::Color(0.0, 0.0, 0.0);
+                }
+            }
         }
         None => {
             // Gradient white -> vlue background.
@@ -102,14 +105,19 @@ fn main() -> std::io::Result<()> {
         Ok(ppm_writer) => ppm_writer,
     };
 
+    // Materials
+    let material = Rc::new(material::Lambertian::new(color::Color::new(0.7, 0.3, 0.3)));
+
     // World
     let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, 0.0, -1.0),
         0.5,
+        material.clone()
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, -100.5, -1.0),
         100.0,
+        material.clone()
     )));
 
     let camera = camera::Camera::new();
