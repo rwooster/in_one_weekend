@@ -31,7 +31,7 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
         return color::Color(0.0, 0.0, 0.0);
     }
 
-    match world.hit(r, 0.01, f32::INFINITY) {
+    match world.hit(r, 0.0001, f32::INFINITY) {
         Some(hit_record) => {
             let target = hit_record.p + hit_record.normal + vec3::random_in_unit_sphere();
             //let target = hit_record.p + hit_record.normal + vec3::random_unit_vector();
@@ -40,7 +40,7 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
                 &ray::Ray::new(hit_record.p, target - hit_record.p),
                 world,
                 depth - 1,
-            );
+            ) * 0.5;
         }
         None => {
             // Gradient white -> vlue background.
