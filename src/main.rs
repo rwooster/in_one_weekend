@@ -112,6 +112,8 @@ fn main() -> std::io::Result<()> {
     let material_left = Rc::new(material::Metal::new(color::Color::new(0.8, 0.8, 0.8), 0.3));
     let material_right = Rc::new(material::Metal::new(color::Color::new(0.8, 0.6, 0.2), 0.7));
 
+    let material_glass = Rc::new(material::Dielectric::new(1.5));
+
     // World
     let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, -100.5, -1.0),
@@ -121,12 +123,12 @@ fn main() -> std::io::Result<()> {
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, 0.0, -1.0),
         0.5,
-        material_center.clone()
+        material_glass.clone()
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(-1.0, 0.0, -1.0),
         0.5,
-        material_left.clone()
+        material_glass.clone()
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(1.0, -0.0, -1.0),
