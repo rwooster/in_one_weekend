@@ -109,8 +109,8 @@ fn main() -> std::io::Result<()> {
     let material_ground = Rc::new(material::Lambertian::new(color::Color::new(0.8, 0.8, 0.0)));
     let material_center = Rc::new(material::Lambertian::new(color::Color::new(0.7, 0.3, 0.3)));
 
-    let material_left = Rc::new(material::Metal::new(color::Color::new(0.8, 0.8, 0.8)));
-    let material_right = Rc::new(material::Metal::new(color::Color::new(0.8, 0.6, 0.2)));
+    let material_left = Rc::new(material::Metal::new(color::Color::new(0.8, 0.8, 0.8), 0.3));
+    let material_right = Rc::new(material::Metal::new(color::Color::new(0.8, 0.6, 0.2), 0.7));
 
     // World
     let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
