@@ -89,6 +89,20 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     }
 }
 
+pub fn random_in_unit_disk() -> Vec3 {
+    loop {
+        let p = Vec3::new(
+            util::random_float_bounds(-1.0, 1.0),
+            util::random_float_bounds(-1.0, 1.0),
+            0.0,
+        );
+        if p.norm_squared() >= 1.0 {
+            continue;
+        }
+        return p;
+    }
+}
+
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     *v - (*n * v.dot(*n) * 2.0)
 }

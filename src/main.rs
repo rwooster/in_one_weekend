@@ -87,6 +87,16 @@ fn write_pixel(
     }
 }
 
+//fn random_scene() -> HittableList {
+//let material_ground = Rc::new(material::Lambertian::new(color::Color::new(0.5, 0.5, 0.5)));
+//let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
+//vec3::Point3(0.0, -1000, 0.0),
+//1000.0,
+//material_ground.clone(),
+//)));
+
+//}
+
 fn main() -> std::io::Result<()> {
     let aspect_ratio = 16.0 / 9.0;
     let image_width: usize = 400;
@@ -130,12 +140,19 @@ fn main() -> std::io::Result<()> {
         material_right.clone(),
     )));
 
+    let lookfrom = vec3::Point3(3.0, 3.0, 2.0);
+    let lookat = vec3::Point3(0.0, 0.0, -1.0);
+    let vup = vec3::Vec3(0.0, 1.0, 0.0);
+    let dist_to_focus = (lookfrom - lookat).norm();
+    let aperture = 2.0;
     let camera = camera::Camera::new(
-        vec3::Point3(-2.0, 2.0, 1.0),
-        vec3::Point3(0.0, 0.0, -1.0),
-        vec3::Vec3(0.0, 1.0, 0.0),
-        90.0,
+        lookfrom,
+        lookat,
+        vup,
+        20.0,
         aspect_ratio,
+        aperture,
+        dist_to_focus,
     );
 
     canvas.render(move |_state, image| {
