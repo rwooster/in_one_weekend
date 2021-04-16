@@ -130,7 +130,13 @@ fn main() -> std::io::Result<()> {
         material_right.clone(),
     )));
 
-    let camera = camera::Camera::new(vec3::Point3(-2.0, 2.0, 1.0), vec3::Point3(0.0, 0.0, -1.0), vec3::Vec3(0.0, 1.0, 0.0), 90.0, aspect_ratio);
+    let camera = camera::Camera::new(
+        vec3::Point3(-2.0, 2.0, 1.0),
+        vec3::Point3(0.0, 0.0, -1.0),
+        vec3::Vec3(0.0, 1.0, 0.0),
+        90.0,
+        aspect_ratio,
+    );
 
     canvas.render(move |_state, image| {
         for j in (0..image_height).rev() {
