@@ -1,4 +1,5 @@
 use super::ray;
+use super::util;
 use super::vec3;
 
 pub struct Camera {
@@ -9,11 +10,12 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Self {
-        // Camera (source of the rays into the scene).
-        let aspect_ratio = 16.0 / 9.0;
-        let viewport_height = 2.0; // arbitrarity chosen height
+    pub fn new(vfov: f32, aspect_ratio: f32) -> Self {
+        let theta: f32 = util::degrees_to_radians(vfov);
+        let h = (theta/2.0).tan();
+        let viewport_height = 2.0 * h;
         let viewport_width = aspect_ratio * viewport_height;
+
         let focal_length = 1.0; // distance from projection plane to projection point.
                                 // Camera is at (0, 0, 0)
                                 // Y axis is up, X axis is right, into screen is negative Z.
