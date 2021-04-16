@@ -1,6 +1,7 @@
 use super::color;
 use super::hittable;
 use super::ray;
+use super::util;
 use super::vec3;
 
 #[derive(Debug, Copy, Clone)]
@@ -81,6 +82,13 @@ impl Dielectric {
     pub fn new(ir: f32) -> Self {
         Dielectric { ir }
     }
+
+    pub fn reflectance(cosine: f32, refraction_ratio: f32) -> f32 {
+        // Use Schlick's approximation
+        let mut r0 = (1.0 - refraction_ratio) / (1.0 + refraction_ratio);
+        r0 = r0 * r0;
+        r0 + (1.0 - r0) * ((1.0 - cosine).powf(5.0))
+    }
 }
 
 impl Material for Dielectric {
@@ -96,7 +104,9 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - (cos_theta * cos_theta)).sqrt();
         let cannot_refract = (refraction_ratio * sin_theta) > 1.0;
 
-        let direction = if cannot_refract {
+        let direction = if cannot_refract
+            || Dielectric::reflectance(cos_theta, refraction_ratio) > util::random_float()
+        {
             vec3::reflect(&unit_direction, &hit_record.normal)
         } else {
             vec3::refract(&unit_direction, &hit_record.normal, refraction_ratio)
