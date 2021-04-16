@@ -13,7 +13,11 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(center: vec3::Point3, radius: f32, material: Rc<dyn material::Material>) -> Self {
-        Sphere { center, radius, material }
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
@@ -46,6 +50,12 @@ impl hittable::Hittable for Sphere {
         let hit_point = r.at(root);
         let outward_normal = (hit_point - self.center) / self.radius;
 
-        Some(hittable::HitRecord::new(root, hit_point, r, outward_normal, self.material.clone()))
+        Some(hittable::HitRecord::new(
+            root,
+            hit_point,
+            r,
+            outward_normal,
+            self.material.clone(),
+        ))
     }
 }

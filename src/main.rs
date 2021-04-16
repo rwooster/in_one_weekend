@@ -5,9 +5,9 @@ mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
+mod material;
 mod ppm;
 mod ray;
-mod material;
 mod sphere;
 mod util;
 mod vec3;
@@ -34,17 +34,14 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: usize) -> color::Color {
     }
 
     match world.hit(r, 0.0001, f32::INFINITY) {
-        Some(hit_record) => {
-
-            match hit_record.material.scatter(r, &hit_record) {
-                Some(scattering) => {
-                    return ray_color(&scattering.scattered, world, depth - 1) * scattering.attenuation;
-                }
-                None => {
-                    return color::Color(0.0, 0.0, 0.0);
-                }
+        Some(hit_record) => match hit_record.material.scatter(r, &hit_record) {
+            Some(scattering) => {
+                return ray_color(&scattering.scattered, world, depth - 1) * scattering.attenuation;
             }
-        }
+            None => {
+                return color::Color(0.0, 0.0, 0.0);
+            }
+        },
         None => {
             // Gradient white -> vlue background.
             let unit_direction = r.direction.unit_vector();
@@ -118,22 +115,22 @@ fn main() -> std::io::Result<()> {
     let mut world: HittableList = HittableList::new(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, -100.5, -1.0),
         100.0,
-        material_ground.clone()
+        material_ground.clone(),
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(0.0, 0.0, -1.0),
         0.5,
-        material_glass.clone()
+        material_glass.clone(),
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(-1.0, 0.0, -1.0),
         0.5,
-        material_glass.clone()
+        material_glass.clone(),
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3(1.0, -0.0, -1.0),
         0.5,
-        material_right.clone()
+        material_right.clone(),
     )));
 
     let camera = camera::Camera::new();
